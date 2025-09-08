@@ -47,28 +47,6 @@ app.use(cors());
 app.use(express.json({ limit: "20mb" }));
 app.use(express.urlencoded({ extended: true, limit: "20mb" }));
 
-
-
-// Test route to check MongoDB connection
-app.get("/test-db", async (req, res) => {
-  try {
-    // This will list all database names if connection works
-    const admin = mongoose.connection.db.admin();
-    const info = await admin.listDatabases();
-    res.status(200).json({
-      message: "MongoDB connection is successful ✅",
-      databases: info.databases.map(db => db.name),
-    });
-  } catch (err) {
-    res.status(500).json({
-      message: "MongoDB connection failed ❌",
-      error: err.message,
-    });
-  }
-});
-
-
-
 //  ROUTES 
 app.get("/api/status", (req, res) => res.send("Server is running"));
 app.use("/api/auth", userRouter);
