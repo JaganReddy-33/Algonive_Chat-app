@@ -6,13 +6,14 @@ import { Server } from "socket.io";
 import { connectDB } from "./lib/db.js";
 import userRouter from "./routes/userRoutes.js";
 import messageRouter from "./routes/messageRoutes.js";
+import mongoose from "mongoose";
 
 dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
 
-// -------------------- SOCKET.IO --------------------
+//  SOCKET.IO 
 export const io = new Server(server, {
   cors: {
     origin: "http://localhost:5173", // frontend URL
@@ -20,7 +21,11 @@ export const io = new Server(server, {
   },
 });
 
-export const userSocketMap = {}; // store online users
+// favicon
+app.get("/favicon.ico", (req, res) => res.status(204));
+
+// store online user
+export const userSocketMap = {}; 
 
 io.on("connection", (socket) => {
   const userId = socket.handshake.query.userId;
@@ -37,21 +42,42 @@ io.on("connection", (socket) => {
   });
 });
 
-// -------------------- MIDDLEWARE --------------------
+//  MIDDLEWARE 
 app.use(cors());
 app.use(express.json({ limit: "20mb" }));
 app.use(express.urlencoded({ extended: true, limit: "20mb" }));
 
-// -------------------- ROUTES --------------------
-app.get("/api/status", (req, res) => res.send("Server is running"));
 
+
+// Test route to check MongoDB connection
+app.get("/test-db", async (req, res) => {
+  try {
+    // This will list all database names if connection works
+    const admin = mongoose.connection.db.admin();
+    const info = await admin.listDatabases();
+    res.status(200).json({
+      message: "MongoDB connection is successful ✅",
+      databases: info.databases.map(db => db.name),
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "MongoDB connection failed ❌",
+      error: err.message,
+    });
+  }
+});
+
+
+
+//  ROUTES 
+app.get("/api/status", (req, res) => res.send("Server is running"));
 app.use("/api/auth", userRouter);
 app.use("/api/messages", messageRouter);
 
-// -------------------- DATABASE --------------------
+//  DATABASE 
 await connectDB();
 
-// -------------------- START SERVER --------------------
+//  START SERVER 
 if(process.env.NODE_ENV !== "production"){
   const PORT = process.env.PORT || 8000;
   server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

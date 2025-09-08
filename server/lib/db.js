@@ -6,10 +6,13 @@ export const connectDB = async () => {
       console.log("✅ MongoDB connected");
     });
 
-    await mongoose.connect(`${process.env.MONGODB_URI}/ChatApp`);
+    await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
 
   } catch (error) {
-    console.error("❌ Failed to connect:", error);
+    console.error("❌ Failed to connect:", error.message);
     process.exit(1);
   }
 };
