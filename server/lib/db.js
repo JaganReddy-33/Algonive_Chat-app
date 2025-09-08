@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from "mongoose/ChatApp";
 
 export const connectDB = async () => {
   try {
@@ -6,7 +6,7 @@ export const connectDB = async () => {
       console.log("✅ MongoDB connected");
     });
 
-    await mongoose.connect(`${process.env.MONGODB_URI}/ChatApp`);
+    await mongoose.connect(`${process.env.MONGODB_URI}`);
 
   } catch (error) {
     console.error("❌ Failed to connect:", error);
